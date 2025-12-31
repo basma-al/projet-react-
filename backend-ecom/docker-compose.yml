@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Base de données MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: shopie-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: shopie_db
+      MYSQL_USER: shopie
+      MYSQL_PASSWORD: shopiepassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database-setup.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - shopie-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Application Shopie Backend
+  shopie-backend:
+    build: .
+    container_name: shopie-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: shopie
+      DB_PASSWORD: shopiepassword
+      JWT_SECRET: myVerySecureJWTSecretKeyForProduction123456789
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/shopie_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    ports:
+      - "8080:8080"
+    networks:
+      - shopie-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/products"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql_data:
+
+networks:
+  shopie-network:
+    driver: bridge

@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Shopie",
+    "slug": "shopie-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#6366f1"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.shopie.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#6366f1"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "sdkVersion": "54.0.0"
+  }
+}

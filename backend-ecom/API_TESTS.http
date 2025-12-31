@@ -1,0 +1,120 @@
+# Tests API pour Shopie Backend
+# Utiliser avec VS Code REST Client ou IntelliJ HTTP Client
+
+### Variables
+@baseUrl = http://localhost:8080/api
+@token = 
+
+### 1. Inscription d'un utilisateur
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "nom": "John Doe",
+  "email": "john@example.com",
+  "motDePasse": "password123"
+}
+
+### 2. Connexion
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "motDePasse": "password123"
+}
+
+### 3. Connexion Admin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@shopie.com",
+  "motDePasse": "password"
+}
+
+### 4. Lister tous les produits
+GET {{baseUrl}}/products
+
+### 5. Récupérer un produit spécifique
+GET {{baseUrl}}/products/1
+
+### 6. Rechercher des produits
+GET {{baseUrl}}/products/search?nom=iPhone
+
+### 7. Créer un produit (Admin uniquement)
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nom": "Samsung Galaxy S24",
+  "description": "Dernier smartphone Samsung avec IA",
+  "prix": 899.99,
+  "imageUrl": "https://example.com/galaxy.jpg",
+  "stock": 30
+}
+
+### 8. Voir le panier
+GET {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+
+### 9. Ajouter au panier
+POST {{baseUrl}}/cart
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantite": 2
+}
+
+### 10. Modifier quantité dans le panier
+PUT {{baseUrl}}/cart/1?quantite=3
+Authorization: Bearer {{token}}
+
+### 11. Supprimer du panier
+DELETE {{baseUrl}}/cart/1
+Authorization: Bearer {{token}}
+
+### 12. Créer une commande
+POST {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+### 13. Voir mes commandes
+GET {{baseUrl}}/orders
+Authorization: Bearer {{token}}
+
+### 14. Créer un paiement
+POST {{baseUrl}}/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "montant": 999.98,
+  "methode": "Stripe"
+}
+
+### 15. Traiter un paiement
+POST {{baseUrl}}/payments/1/process
+Authorization: Bearer {{token}}
+
+### 16. Admin - Voir toutes les commandes
+GET {{baseUrl}}/orders/admin/all
+Authorization: Bearer {{token}}
+
+### 17. Admin - Modifier statut commande
+PUT {{baseUrl}}/orders/admin/1/status?statut=SHIPPED
+Authorization: Bearer {{token}}
+
+### 18. Admin - Voir tous les paiements
+GET {{baseUrl}}/payments/admin/all
+Authorization: Bearer {{token}}
+
+### 19. Admin - Modifier statut paiement
+PUT {{baseUrl}}/payments/admin/1/status?statut=PAID
+Authorization: Bearer {{token}}
+
+### 20. Test de santé (produits disponibles)
+GET {{baseUrl}}/products/available

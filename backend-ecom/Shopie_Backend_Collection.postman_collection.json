@@ -1,0 +1,497 @@
+{
+	"info": {
+		"_postman_id": "shopie-backend-api",
+		"name": "Shopie Backend API",
+		"description": "Collection complète pour tester l'API Backend Shopie",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Inscription Utilisateur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"token\", response.token);",
+									"    pm.environment.set(\"userId\", response.id);",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"motDePasse\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Connexion Utilisateur",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"token\", response.token);",
+									"    pm.environment.set(\"userId\", response.id);",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"motDePasse\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Connexion Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"adminToken\", response.token);",
+									"}",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@shopie.com\",\n  \"motDePasse\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📦 Produits",
+			"item": [
+				{
+					"name": "Lister tous les produits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						}
+					}
+				},
+				{
+					"name": "Récupérer un produit",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Rechercher des produits",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/search?nom=iPhone",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "search"],
+							"query": [
+								{
+									"key": "nom",
+									"value": "iPhone"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Créer un produit (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nom\": \"Samsung Galaxy S24\",\n  \"description\": \"Dernier smartphone Samsung avec IA\",\n  \"prix\": 899.99,\n  \"imageUrl\": \"https://example.com/galaxy.jpg\",\n  \"stock\": 30\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🛒 Panier",
+			"item": [
+				{
+					"name": "Voir le panier",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["cart"]
+						}
+					}
+				},
+				{
+					"name": "Ajouter au panier",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productId\": 1,\n  \"quantite\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cart",
+							"host": ["{{baseUrl}}"],
+							"path": ["cart"]
+						}
+					}
+				},
+				{
+					"name": "Modifier quantité",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/1?quantite=3",
+							"host": ["{{baseUrl}}"],
+							"path": ["cart", "1"],
+							"query": [
+								{
+									"key": "quantite",
+									"value": "3"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Supprimer du panier",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/cart/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["cart", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "📋 Commandes",
+			"item": [
+				{
+					"name": "Créer une commande",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"orderId\", response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Mes commandes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						}
+					}
+				},
+				{
+					"name": "Détails d'une commande",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "💳 Paiements",
+			"item": [
+				{
+					"name": "Créer un paiement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set(\"paymentId\", response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": {{orderId}},\n  \"montant\": 1999.98,\n  \"methode\": \"Stripe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments"]
+						}
+					}
+				},
+				{
+					"name": "Traiter un paiement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}/process",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "{{paymentId}}", "process"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "👑 Admin",
+			"item": [
+				{
+					"name": "Toutes les commandes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/admin/all",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "admin", "all"]
+						}
+					}
+				},
+				{
+					"name": "Modifier statut commande",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/orders/admin/{{orderId}}/status?statut=SHIPPED",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "admin", "{{orderId}}", "status"],
+							"query": [
+								{
+									"key": "statut",
+									"value": "SHIPPED"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Tous les paiements",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{adminToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/admin/all",
+							"host": ["{{baseUrl}}"],
+							"path": ["payments", "admin", "all"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api"
+		}
+	]
+}
