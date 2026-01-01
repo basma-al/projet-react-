@@ -37,10 +37,18 @@ export default function AdminDashboardScreen({ navigation }) {
       // Charger les statistiques de base
       const products = await authenticatedRequest(API_CONFIG.ENDPOINTS.PRODUCTS);
       
+      // Charger les statistiques des utilisateurs
+      let userStats = { totalUsers: 0 };
+      try {
+        userStats = await authenticatedRequest(API_CONFIG.ENDPOINTS.ADMIN_USERS_STATS);
+      } catch (error) {
+        console.log('Could not load user stats:', error);
+      }
+      
       setStats({
         totalProducts: products?.length || 0,
         totalOrders: 0, // À implémenter si nécessaire
-        totalUsers: 0, // À implémenter si nécessaire
+        totalUsers: userStats.totalUsers || 0,
         lowStockProducts: products?.filter(p => p.stock < 10).length || 0,
       });
     } catch (error) {
@@ -70,7 +78,7 @@ export default function AdminDashboardScreen({ navigation }) {
       subtitle: 'Gérer les comptes utilisateurs',
       icon: 'people-outline',
       color: '#FF9500',
-      onPress: () => Alert.alert('Info', 'Fonctionnalité à venir'),
+      onPress: () => navigation.navigate('AdminUsers'),
     },
     {
       title: 'Statistiques',
@@ -122,6 +130,12 @@ export default function AdminDashboardScreen({ navigation }) {
             value={stats.totalProducts}
             icon="cube-outline"
             color="#007AFF"
+          />
+          <StatCard
+            title="Utilisateurs"
+            value={stats.totalUsers}
+            icon="people-outline"
+            color="#FF9500"
           />
           <StatCard
             title="Stock faible"
@@ -205,7 +219,7 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   statCard: {
     flex: 1,

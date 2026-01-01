@@ -34,6 +34,10 @@ export const API_CONFIG = {
     ADMIN_ORDERS_STATUS: '/orders/admin/status',
     ADMIN_ORDER_UPDATE_STATUS: '/orders/admin',
     
+    // Users (Admin)
+    ADMIN_USERS: '/admin/users',
+    ADMIN_USERS_STATS: '/admin/users/stats',
+    
     // Payments
     PAYMENTS: '/payments',
     

@@ -19,6 +19,7 @@ import CheckoutScreen from './src/screens/CheckoutScreen';
 import AdminDashboardScreen from './src/screens/AdminDashboardScreen';
 import AdminProductsScreen from './src/screens/AdminProductsScreen';
 import AdminOrdersScreen from './src/screens/AdminOrdersScreen';
+import AdminUsersScreen from './src/screens/AdminUsersScreen';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -110,6 +111,11 @@ function AppStack() {
         name="AdminOrders" 
         component={AdminOrdersScreen}
         options={{ title: 'Gestion des Commandes' }}
+      />
+      <Stack.Screen 
+        name="AdminUsers" 
+        component={AdminUsersScreen}
+        options={{ title: 'Gestion des Utilisateurs' }}
       />
     </Stack.Navigator>
   );
