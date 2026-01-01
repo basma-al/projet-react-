@@ -20,6 +20,7 @@ import AdminDashboardScreen from './src/screens/AdminDashboardScreen';
 import AdminProductsScreen from './src/screens/AdminProductsScreen';
 import AdminOrdersScreen from './src/screens/AdminOrdersScreen';
 import AdminUsersScreen from './src/screens/AdminUsersScreen';
+import AdminAnalyticsScreen from './src/screens/AdminAnalyticsScreen';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -116,6 +117,11 @@ function AppStack() {
         name="AdminUsers" 
         component={AdminUsersScreen}
         options={{ title: 'Gestion des Utilisateurs' }}
+      />
+      <Stack.Screen 
+        name="AdminAnalytics" 
+        component={AdminAnalyticsScreen}
+        options={{ title: 'Rapports et Analyses' }}
       />
     </Stack.Navigator>
   );

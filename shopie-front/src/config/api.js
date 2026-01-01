@@ -38,6 +38,13 @@ export const API_CONFIG = {
     ADMIN_USERS: '/admin/users',
     ADMIN_USERS_STATS: '/admin/users/stats',
     
+    // Analytics (Admin)
+    ADMIN_ANALYTICS_DASHBOARD: '/analytics/dashboard',
+    ADMIN_ANALYTICS_SALES: '/analytics/sales',
+    ADMIN_ANALYTICS_PRODUCTS: '/analytics/products',
+    ADMIN_ANALYTICS_CUSTOMERS: '/analytics/customers',
+    ADMIN_ANALYTICS_TOP_PRODUCTS: '/analytics/top-products',
+    
     // Payments
     PAYMENTS: '/payments',
     

@@ -85,7 +85,7 @@ export default function AdminDashboardScreen({ navigation }) {
       subtitle: 'Voir les rapports et analyses',
       icon: 'analytics-outline',
       color: '#AF52DE',
-      onPress: () => Alert.alert('Info', 'Fonctionnalité à venir'),
+      onPress: () => navigation.navigate('AdminAnalytics'),
     },
   ];
 
