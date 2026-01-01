@@ -128,7 +128,11 @@ export default function HomeScreen({ navigation }) {
       >
         <Image
           source={{ 
-            uri: item.imageUrl || 'https://via.placeholder.com/150x150?text=No+Image' 
+            uri: item.imageUrl && item.imageUrl.startsWith('http') 
+              ? item.imageUrl 
+              : item.imageUrl 
+                ? `${API_CONFIG.BASE_URL}${item.imageUrl}`
+                : 'https://via.placeholder.com/150x150?text=No+Image'
           }}
           style={styles.productImage}
           defaultSource={{ uri: 'https://via.placeholder.com/150x150?text=No+Image' }}

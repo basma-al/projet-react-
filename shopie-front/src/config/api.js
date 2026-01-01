@@ -5,7 +5,7 @@ const getBaseUrl = () => {
   // For physical device, use your computer's IP address
   
   // You can uncomment the appropriate line based on your setup:
-  return 'http://20.30.1.85:8081/api';        // Physical device/Expo Go
+  return 'http://192.168.1.113:8081/api';        // Physical device/Expo Go
   // return 'http://10.0.2.2:8081/api';       // Android emulator
   // return 'http://localhost:8081/api';      // iOS simulator
 };
@@ -36,6 +36,11 @@ export const API_CONFIG = {
     
     // Payments
     PAYMENTS: '/payments',
+    
+    // Images
+    IMAGE_UPLOAD: '/images/upload',
+    IMAGE_GET: '/images',
+    IMAGE_DELETE: '/images',
   }
 };
 

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
+import { API_CONFIG } from '../config/api';
 
 export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
@@ -51,7 +52,11 @@ export default function ProductDetailScreen({ route, navigation }) {
     <ScrollView style={styles.container}>
       <Image
         source={{ 
-          uri: product.imageUrl || 'https://via.placeholder.com/400x300?text=No+Image' 
+          uri: product.imageUrl && product.imageUrl.startsWith('http') 
+            ? product.imageUrl 
+            : product.imageUrl 
+              ? `${API_CONFIG.BASE_URL}${product.imageUrl}`
+              : 'https://via.placeholder.com/400x300?text=No+Image'
         }}
         style={styles.productImage}
         defaultSource={{ uri: 'https://via.placeholder.com/400x300?text=No+Image' }}

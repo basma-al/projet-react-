@@ -10,8 +10,10 @@ import {
   Modal,
   TextInput,
   ScrollView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { API_CONFIG } from '../config/api';
@@ -29,6 +31,8 @@ export default function AdminProductsScreen({ navigation }) {
     imageUrl: '',
     stock: '',
   });
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const { authenticatedRequest, user, token } = useAuth();
   const { getCartItemsCount } = useCart();
@@ -70,6 +74,7 @@ export default function AdminProductsScreen({ navigation }) {
       imageUrl: '',
       stock: '',
     });
+    setSelectedImage(null);
     setModalVisible(true);
   };
 
@@ -82,6 +87,7 @@ export default function AdminProductsScreen({ navigation }) {
       imageUrl: product.imageUrl || '',
       stock: product.stock.toString(),
     });
+    setSelectedImage(null);
     setModalVisible(true);
   };
 
@@ -91,11 +97,26 @@ export default function AdminProductsScreen({ navigation }) {
       return;
     }
 
+    let finalImageUrl = formData.imageUrl;
+
+    // Si une nouvelle image a été sélectionnée, l'uploader d'abord
+    if (selectedImage) {
+      try {
+        setUploadingImage(true);
+        finalImageUrl = await uploadImage(selectedImage);
+      } catch (error) {
+        Alert.alert('Erreur', 'Impossible d\'uploader l\'image: ' + error.message);
+        setUploadingImage(false);
+        return;
+      }
+      setUploadingImage(false);
+    }
+
     const productData = {
       nom: formData.nom.trim(),
       description: formData.description.trim(),
       prix: parseFloat(formData.prix),
-      imageUrl: formData.imageUrl.trim() || null,
+      imageUrl: finalImageUrl || null,
       stock: parseInt(formData.stock),
     };
 
@@ -122,6 +143,100 @@ export default function AdminProductsScreen({ navigation }) {
       console.error('Error saving product:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder le produit');
     }
+  };
+
+  // Fonction pour uploader une image
+  const uploadImage = async (imageUri) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'product-image.jpg',
+      });
+
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.IMAGE_UPLOAD}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return `${API_CONFIG.BASE_URL}${result.imageUrl}`;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
+  // Fonction pour sélectionner une image depuis la galerie
+  const pickImageFromGallery = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission requise', 'Nous avons besoin de la permission pour accéder à vos photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+        setFormData({ ...formData, imageUrl: '' }); // Clear URL field when image is selected
+      }
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de sélectionner l\'image');
+    }
+  };
+
+  // Fonction pour prendre une photo avec la caméra
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission requise', 'Nous avons besoin de la permission pour utiliser la caméra');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setSelectedImage(result.assets[0].uri);
+        setFormData({ ...formData, imageUrl: '' }); // Clear URL field when image is selected
+      }
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de prendre la photo');
+    }
+  };
+
+  // Fonction pour choisir la méthode d'ajout d'image
+  const showImageOptions = () => {
+    Alert.alert(
+      'Ajouter une image',
+      'Comment souhaitez-vous ajouter une image ?',
+      [
+        { text: 'Galerie', onPress: pickImageFromGallery },
+        { text: 'Caméra', onPress: takePhoto },
+        { text: 'URL', onPress: () => {} }, // L'utilisateur peut toujours utiliser le champ URL
+        { text: 'Annuler', style: 'cancel' },
+      ]
+    );
   };
 
   const handleDeleteProduct = (product) => {
@@ -271,13 +386,81 @@ export default function AdminProductsScreen({ navigation }) {
               </View>
 
               <View style={styles.formGroup}>
-                <Text style={styles.label}>URL de l'image</Text>
+                <Text style={styles.label}>Image du produit</Text>
+                
+                {/* Prévisualisation de l'image */}
+                <View style={styles.imagePreviewContainer}>
+                  {selectedImage ? (
+                    <Image source={{ uri: selectedImage }} style={styles.imagePreview} />
+                  ) : formData.imageUrl ? (
+                    <Image 
+                      source={{ uri: formData.imageUrl }} 
+                      style={styles.imagePreview}
+                      defaultSource={{ uri: 'https://via.placeholder.com/150x150?text=No+Image' }}
+                    />
+                  ) : (
+                    <View style={styles.imagePlaceholder}>
+                      <Ionicons name="image-outline" size={40} color="#ccc" />
+                      <Text style={styles.imagePlaceholderText}>Aucune image</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Boutons pour ajouter/changer l'image */}
+                <View style={styles.imageButtonsContainer}>
+                  <TouchableOpacity
+                    style={styles.imageButton}
+                    onPress={showImageOptions}
+                    disabled={uploadingImage}
+                  >
+                    <Ionicons name="camera" size={20} color="#6366f1" />
+                    <Text style={styles.imageButtonText}>
+                      {selectedImage || formData.imageUrl ? 'Changer' : 'Ajouter'} image
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  {(selectedImage || formData.imageUrl) && (
+                    <TouchableOpacity
+                      style={[styles.imageButton, styles.removeImageButton]}
+                      onPress={() => {
+                        setSelectedImage(null);
+                        setFormData({ ...formData, imageUrl: '' });
+                      }}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                      <Text style={[styles.imageButtonText, { color: '#ef4444' }]}>
+                        Supprimer
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {uploadingImage && (
+                  <View style={styles.uploadingContainer}>
+                    <Text style={styles.uploadingText}>Upload en cours...</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Ou URL de l'image</Text>
                 <TextInput
                   style={styles.input}
                   value={formData.imageUrl}
-                  onChangeText={(text) => setFormData({ ...formData, imageUrl: text })}
+                  onChangeText={(text) => {
+                    setFormData({ ...formData, imageUrl: text });
+                    if (text.trim()) {
+                      setSelectedImage(null); // Clear selected image when URL is entered
+                    }
+                  }}
                   placeholder="https://example.com/image.jpg"
+                  editable={!selectedImage}
                 />
+                {selectedImage && (
+                  <Text style={styles.helperText}>
+                    Une image est sélectionnée. Supprimez-la pour utiliser une URL.
+                  </Text>
+                )}
               </View>
 
               <View style={styles.formGroup}>
@@ -497,5 +680,71 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  imagePreviewContainer: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  imagePreview: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
+  imagePlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#ddd',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9f9f9',
+  },
+  imagePlaceholderText: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  imageButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
+  imageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6366f1',
+    backgroundColor: 'white',
+  },
+  removeImageButton: {
+    borderColor: '#ef4444',
+  },
+  imageButtonText: {
+    color: '#6366f1',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  uploadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  uploadingText: {
+    color: '#6366f1',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+    fontStyle: 'italic',
   },
 });
